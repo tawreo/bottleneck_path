@@ -250,51 +250,39 @@ namespace Offline {
 
 // ============================================
 // 3. ONLINE MPBPP ALGORITHM (Algorithms 4, 5, 6 from the paper)
+// Optimized version
 // ============================================
 
 namespace Online {
 
-    // Построение максимального остовного дерева (MaxST)
-    Graph buildMaxST(const Graph& g) {
-        if (g.n == 0) return Graph(0);
+    // ============================================
+    // 1. MaxST using Kruskal
+    // ============================================
+    static Graph buildMaxST_Kruskal(const Graph& g) {
+        if (g.n <= 1) return Graph(g.n);
 
         Graph mst(g.n);
-        std::vector<bool> inMST(g.n, false);
-        using Element = std::tuple<int, int, int>; // weight, vertex, parent
-        std::priority_queue<Element> pq;
+        DSU dsu(g.n);
 
-        int startVertex = 0;
-        for (int i = 0; i < g.n; i++) {
-            if (!g.adj[i].empty()) {
-                startVertex = i;
-                break;
-            }
-        }
-        inMST[startVertex] = true;
+        std::vector<Edge> edges = g.edges;
+        std::sort(edges.begin(), edges.end(),
+            [](const Edge& a, const Edge& b) { return a.weight > b.weight; });
 
-        for (const auto& edge : g.adj[0]) {
-            pq.push(std::make_tuple(edge.second, edge.first, 0));
-        }
-
-        while (!pq.empty()) {
-            auto [weight, v, parent] = pq.top();
-            pq.pop();
-
-            if (inMST[v]) continue;
-
-            inMST[v] = true;
-            mst.addEdge(parent, v, weight);
-
-            for (const auto& edge : g.adj[v]) {
-                if (!inMST[edge.first]) {
-                    pq.push(std::make_tuple(edge.second, edge.first, v));
-                }
+        int edgesAdded = 0;
+        for (const Edge& e : edges) {
+            if (dsu.unite(e.from, e.to)) {
+                mst.addEdge(e.from, e.to, e.weight);
+                edgesAdded++;
+                if (edgesAdded == g.n - 1) break;
             }
         }
 
         return mst;
     }
 
+    // ============================================
+    // 2. LCA with binary lifting (исправленный)
+    // ============================================
     class LCAPreprocessor {
     private:
         int n;
@@ -308,15 +296,15 @@ namespace Online {
         LCAPreprocessor() : n(0), LOG(0), root(0) {}
 
         void preprocess(const Graph& tree, int r) {
+            if (tree.n == 0) return;
+
             root = r;
             n = tree.n;
-            if (n == 0) return;
-
             depth.assign(n, 0);
-            std::vector<int> parentWeight(n, 0);
             std::vector<int> par(n, -1);
+            std::vector<int> parWeight(n, INT_MAX);
 
-            // BFS from root
+            // BFS для вычисления родителей и глубин
             std::queue<int> q;
             q.push(root);
             par[root] = root;
@@ -331,19 +319,21 @@ namespace Online {
                     int w = edge.second;
                     if (to != par[v]) {
                         par[to] = v;
-                        parentWeight[to] = w;
+                        parWeight[to] = w;
                         depth[to] = depth[v] + 1;
                         q.push(to);
                     }
                 }
             }
 
-            // Вычисляем максимальную глубину и LOG
+            // Вычисление LOG (безопасно)
             int maxDepth = 0;
             for (int d : depth) {
                 if (d > maxDepth) maxDepth = d;
             }
-            LOG = (maxDepth == 0) ? 1 : (int)std::log2(maxDepth) + 2;
+            LOG = 1;
+            while ((1 << LOG) <= maxDepth) LOG++;
+            LOG++; // небольшой запас
 
             // Инициализация таблиц
             parent.assign(n, std::vector<int>(LOG));
@@ -352,10 +342,10 @@ namespace Online {
             // Заполнение для 2^0
             for (int v = 0; v < n; v++) {
                 parent[v][0] = (v == root) ? root : par[v];
-                minEdge[v][0] = (v == root) ? INT_MAX : parentWeight[v];
+                minEdge[v][0] = (v == root) ? INT_MAX : parWeight[v];
             }
 
-            // Заполнение для 2^i
+            // Заполнение для 2^j
             for (int j = 1; j < LOG; j++) {
                 for (int v = 0; v < n; v++) {
                     int mid = parent[v][j - 1];
@@ -370,26 +360,25 @@ namespace Online {
             if (s < 0 || s >= n || t < 0 || t >= n) return 0;
 
             int result = INT_MAX;
-            int u = s;
-            int v = t;
+            int u = s, v = t;
 
-            // Выравниваем глубины
+            // Выравнивание глубин
             if (depth[u] < depth[v]) {
                 std::swap(u, v);
             }
 
-            // Поднимаем u до глубины v
             int diff = depth[u] - depth[v];
-            for (int j = 0; j < LOG; j++) {
+            for (int j = 0; j < LOG && diff > 0; j++) {
                 if (diff & (1 << j)) {
                     result = std::min(result, minEdge[u][j]);
                     u = parent[u][j];
+                    diff -= (1 << j);
                 }
             }
 
             if (u == v) return result;
 
-            // Поднимаем оба до LCA
+            // Подъём до LCA
             for (int j = LOG - 1; j >= 0; j--) {
                 if (parent[u][j] != parent[v][j]) {
                     result = std::min(result, minEdge[u][j]);
@@ -405,8 +394,6 @@ namespace Online {
 
             return result;
         }
-
-        int getDepth(int v) const { return depth[v]; }
     };
 
     class BottleneckSolver {
@@ -419,9 +406,11 @@ namespace Online {
 
         void build(const Graph& g) {
             if (g.n == 0) return;
-            Graph mst = buildMaxST(g);
-            lca.preprocess(mst, 0);
-            initialized = true;
+            Graph mst = buildMaxST_Kruskal(g);
+            if (mst.n > 0) {
+                lca.preprocess(mst, 0);
+                initialized = true;
+            }
         }
 
         int query(int s, int t) const {
@@ -432,19 +421,19 @@ namespace Online {
         std::vector<int> solve(const Graph& g,
             const std::vector<std::pair<int, int>>& pairs) {
             build(g);
-
             std::vector<int> answers;
+            answers.reserve(pairs.size());
             for (const auto& p : pairs) {
                 answers.push_back(query(p.first, p.second));
             }
             return answers;
         }
     };
-}
+
+} // namespace Online
 
 // ============================================
 // 4. MSBPP ALGORITHM (Algorithm 7 from the paper)
-// Исправленная версия с BFS вместо DFS
 // ============================================
 
 namespace MSBPP {
