@@ -1,0 +1,20 @@
+﻿  complexity_test.cpp
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\algorithms.h(40,23): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+  (компиляция исходного файла "complexity_test.cpp")
+  
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\algorithms.h(140,43): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+  (компиляция исходного файла "complexity_test.cpp")
+  
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\complexity_test.cpp(195,24): warning C4566: символ, представленный универсальным именем символа "\u221A", невозможно представить в текущей кодовой странице (1251)
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\complexity_test.cpp(237,17): warning C4566: символ, представленный универсальным именем символа "\u00B2", невозможно представить в текущей кодовой странице (1251)
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\complexity_test.cpp(238,17): warning C4566: символ, представленный универсальным именем символа "\u221A", невозможно представить в текущей кодовой странице (1251)
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\complexity_test.cpp(247,17): warning C4566: символ, представленный универсальным именем символа "\u2248", невозможно представить в текущей кодовой странице (1251)
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\complexity_test.cpp(247,17): warning C4566: символ, представленный универсальным именем символа "\u00B2", невозможно представить в текущей кодовой странице (1251)
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\complexity_test.cpp(248,17): warning C4566: символ, представленный универсальным именем символа "\u2248", невозможно представить в текущей кодовой странице (1251)
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\complexity_test.cpp(248,17): warning C4566: символ, представленный универсальным именем символа "\u00B2", невозможно представить в текущей кодовой странице (1251)
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\complexity_test.cpp(249,17): warning C4566: символ, представленный универсальным именем символа "\u2248", невозможно представить в текущей кодовой странице (1251)
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\complexity_test.cpp(249,17): warning C4566: символ, представленный универсальным именем символа "\u00B2", невозможно представить в текущей кодовой странице (1251)
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\complexity_test.cpp(252,21): warning C4566: символ, представленный универсальным именем символа "\u00B2", невозможно представить в текущей кодовой странице (1251)
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\complexity_test.cpp(255,21): warning C4566: символ, представленный универсальным именем символа "\u00B2", невозможно представить в текущей кодовой странице (1251)
+C:\Users\SYVEX\source\repos\bottleneck_path\bottleneck_path\complexity_test.cpp(297,13): warning C4566: символ, представленный универсальным именем символа "\u00B2", невозможно представить в текущей кодовой странице (1251)
+  bottleneck_path.vcxproj -> C:\Users\SYVEX\source\repos\bottleneck_path\x64\Debug\bottleneck_path.exe
